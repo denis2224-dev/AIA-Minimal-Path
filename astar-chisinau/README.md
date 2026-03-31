@@ -1,101 +1,89 @@
-# A* Pathfinder — Chișinău, Rîșcani Sector
+# Emergency Ambulance Routing — Chișinău
 
-Interactive shortest-path finder over a real OpenStreetMap street graph, built for a university Algorithms course.
+Real-time emergency ambulance dispatch routing over a real OpenStreetMap street graph of the Rîșcani sector, Chișinău, Moldova. Built for the AIA course at UTM.
+
+Uses the **A\* algorithm** with a Haversine heuristic to compute the optimal shortest path between any two points on the street network.
 
 **Three layers:**
 1. **Python preprocessing** — downloads OSM data, parses streets, emits `nodes.csv` / `edges.csv`
-2. **C core** — loads the graph into a CSR structure, runs A\* and Dijkstra via a shared library
-3. **React + TypeScript frontend** — Leaflet map UI with path visualization and algorithm comparison
+2. **C core** — loads the graph into a CSR structure, runs A\* via a shared library (`.so` / `.dylib` / `.dll`)
+3. **React + TypeScript frontend** — Leaflet map UI with emergency routing theme, ETA calculation
 
 ---
 
-## Prerequisites
+## Quick Start (Docker)
+
+The easiest way — requires only [Docker](https://www.docker.com/):
+
+```bash
+git clone https://github.com/denis2224-dev/AIA-Minimal-Path.git
+cd AIA-Minimal-Path/astar-chisinau
+docker compose up --build
+```
+
+Open **http://localhost:3000** — done.
+
+---
+
+## Quick Start (Manual)
+
+### Prerequisites
 
 - **Python 3.10+** with `pip`
 - **GCC** (or Clang / MSVC) and **CMake 3.14+**
 - **Node.js 18+** with `npm`
 
----
+The graph data (`data/nodes.csv`, `data/edges.csv`) is already included in the repo — no preprocessing needed.
 
-## Quick Start
-
-### 1. Preprocess OSM data
+### 1. Build the C core
 
 ```bash
-cd preprocess
-pip install requests
-python preprocess.py
-```
-
-This downloads the Rîșcani bounding box from the Overpass API, parses streets, computes the largest strongly-connected component, and writes `data/nodes.csv` + `data/edges.csv`.
-
-### 2. Build the C core
-
-```bash
-cd core
+cd astar-chisinau/core
 mkdir build && cd build
-cmake ..
-cmake --build .
+cmake .. && cmake --build .
 ```
 
-Test with the CLI:
+### 2. Start the Flask server
 
 ```bash
-./astar_cli ../../data/nodes.csv ../../data/edges.csv 0 100
-```
-
-Expected output:
-```
-A*:       distance=1234.5 m  nodes_in_path=42  time=0.003s  expanded=317
-Dijkstra: distance=1234.5 m  nodes_in_path=42  time=0.011s  expanded=891
-
-[OK] Both algorithms agree on distance (diff=0.00 m)
-```
-
-### 3. Start the Flask server
-
-```bash
-cd server
+cd astar-chisinau/server
 pip install -r requirements.txt
 python server.py
 ```
 
-The server loads the shared library via `ctypes` and listens on `http://localhost:5000`.
-
-### 4. Start the React UI
+### 3. Start the React UI
 
 ```bash
-cd ui
+cd astar-chisinau/ui
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000` in your browser.
+Open **http://localhost:3000** in your browser.
 
 ---
 
 ## How to Use
 
-1. **Click** on the map to set the **source** (green marker)
-2. **Click** again to set the **destination** (red marker)
-3. Choose **A\*** or **Dijkstra** in the sidebar
-4. Press **Find Path** — the shortest route appears as a red polyline
-5. The sidebar shows distance, time, and a bar chart comparing nodes expanded
+1. **Click** on the map to set the **ambulance location** (blue marker)
+2. **Click** again to set the **emergency location** (red marker)
+3. Press **Dispatch Route** — the optimal route appears as a red polyline
+4. The sidebar shows **ETA**, distance, waypoints, and compute time
 
-You can also **search** for streets by name in the sidebar to quickly set source/destination.
+You can also **search** for streets by name to quickly set locations.
 
 ---
 
-## A\* vs Dijkstra
+## How A\* Works
 
-| Metric | A\* | Dijkstra |
-|---|---|---|
-| **Heuristic** | Haversine straight-line distance | None (h = 0) |
-| **Optimality** | Yes (Haversine is admissible) | Yes |
-| **Nodes expanded** | ~60–80% fewer | Explores in all directions |
-| **Time** | Faster for point-to-point | Slower (uniform expansion) |
+A\* finds the shortest path by combining:
+- **g(n)** — actual distance from the start to node n
+- **h(n)** — Haversine straight-line estimate to the goal (admissible heuristic)
+- **f(n) = g(n) + h(n)** — total estimated cost
 
-A\* uses the Haversine distance to the goal as a heuristic. Since the straight-line distance never overestimates the actual road distance, A\* is guaranteed to find the optimal path while expanding significantly fewer nodes.
+Because the straight-line distance never overestimates the real road distance, A\* is guaranteed to find the **optimal path** while exploring significantly fewer nodes than uninformed search.
+
+**Graph stats:** 13,976 nodes · 28,932 directed edges · largest SCC of the Rîșcani street network.
 
 ---
 
@@ -103,22 +91,27 @@ A\* uses the Haversine distance to the goal as a heuristic. Since the straight-l
 
 ```
 astar-chisinau/
-├── data/                  # Generated CSV files
-├── preprocess/            # OSM → CSV pipeline
+├── data/                  # Graph CSV files (included in repo)
+│   ├── nodes.csv          # 13,976 nodes with lat/lon/street name
+│   └── edges.csv          # 28,932 directed edges with distance
+├── preprocess/            # OSM → CSV pipeline (optional re-run)
 │   └── preprocess.py
 ├── core/                  # C implementation
-│   ├── astar.h/c          # Graph, heap, A*, Dijkstra
+│   ├── astar.h/c          # CSR graph, min-heap, A* search
 │   ├── main.c             # CLI test runner
 │   └── CMakeLists.txt
-├── server/                # Flask API bridge
+├── server/                # Flask API bridge (ctypes → C library)
 │   ├── server.py
+│   ├── Dockerfile
 │   └── requirements.txt
-├── ui/                    # React + TypeScript frontend
+├── ui/                    # React + TypeScript + Leaflet frontend
+│   ├── Dockerfile
 │   └── src/
 │       ├── App.tsx
 │       ├── components/    # MapView, Sidebar, NodeSearch
 │       ├── hooks/         # useAstar
 │       └── types/         # TypeScript interfaces
+├── docker-compose.yml     # One-command startup
 └── README.md
 ```
 
