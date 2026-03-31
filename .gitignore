@@ -1,0 +1,26 @@
+# Dependencies
+astar-chisinau/ui/node_modules/
+
+# Build outputs
+astar-chisinau/core/build/
+astar-chisinau/ui/dist/
+
+# Raw OSM data (large, can be re-downloaded)
+astar-chisinau/data/raw.osm
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
