@@ -4,11 +4,12 @@ import type { GraphNode } from '../types/graph'
 interface NodeSearchProps {
   nodes: GraphNode[]
   label: string
+  placeholder?: string
   selectedNode: GraphNode | null
   onSelect: (node: GraphNode) => void
 }
 
-export default function NodeSearch({ nodes, label, selectedNode, onSelect }: NodeSearchProps) {
+export default function NodeSearch({ nodes, label, placeholder, selectedNode, onSelect }: NodeSearchProps) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -35,17 +36,16 @@ export default function NodeSearch({ nodes, label, selectedNode, onSelect }: Nod
 
   return (
     <div ref={wrapperRef} className="relative">
-      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-        {label}
-      </label>
+      {label && (
+        <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+          {label}
+        </label>
+      )}
       {selectedNode ? (
-        <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm">
-          <div>
+        <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm">
+          <div className="truncate">
             <span className="font-medium text-gray-800">
               {selectedNode.name || `Node #${selectedNode.id}`}
-            </span>
-            <span className="ml-2 text-gray-400 text-xs">
-              ({selectedNode.lat.toFixed(5)}, {selectedNode.lon.toFixed(5)})
             </span>
           </div>
           <button
@@ -53,7 +53,7 @@ export default function NodeSearch({ nodes, label, selectedNode, onSelect }: Nod
               onSelect(null as unknown as GraphNode)
               setQuery('')
             }}
-            className="text-gray-400 hover:text-red-500 ml-2 text-lg leading-none"
+            className="text-gray-400 hover:text-red-500 ml-2 text-lg leading-none shrink-0"
             title="Clear"
           >
             ×
@@ -62,18 +62,20 @@ export default function NodeSearch({ nodes, label, selectedNode, onSelect }: Nod
       ) : (
         <input
           type="text"
-          placeholder="Search street name…"
+          placeholder={placeholder || 'Search street name…'}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
             setOpen(true)
           }}
           onFocus={() => query.trim() && setOpen(true)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-red-400/50 focus:border-red-300
+                     placeholder:text-gray-400 transition-all"
         />
       )}
       {open && filtered.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+        <ul className="absolute z-[1100] mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
           {filtered.map((n) => (
             <li
               key={n.id}
@@ -82,10 +84,14 @@ export default function NodeSearch({ nodes, label, selectedNode, onSelect }: Nod
                 setQuery('')
                 setOpen(false)
               }}
-              className="px-3 py-2 text-sm cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0"
+              className="px-3 py-2 text-sm cursor-pointer hover:bg-red-50 border-b border-gray-100 last:border-b-0
+                         flex items-center gap-2"
             >
-              <span className="font-medium text-gray-800">{n.name}</span>
-              <span className="ml-2 text-gray-400 text-xs">#{n.id}</span>
+              <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+              </svg>
+              <span className="font-medium text-gray-700 truncate">{n.name}</span>
             </li>
           ))}
         </ul>

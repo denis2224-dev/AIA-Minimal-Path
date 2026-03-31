@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { GraphNode, PathResult } from './types/graph'
 import { useAstar } from './hooks/useAstar'
-import Sidebar from './components/Sidebar'
+import SearchPanel from './components/Sidebar'
+import RouteCard from './components/RouteCard'
 import MapView from './components/MapView'
 
 export default function App() {
@@ -42,7 +43,7 @@ export default function App() {
     clickCount.current = next
   }, [])
 
-  /* Set source/destination from sidebar search */
+  /* Set source/destination from search panel */
   const handleSetSource = useCallback((node: GraphNode | null) => {
     setSource(node)
     setResult(null)
@@ -55,6 +56,13 @@ export default function App() {
     if (node && source) clickCount.current = 2
   }, [source])
 
+  /* Swap source and destination */
+  const handleSwap = useCallback(() => {
+    setSource(destination)
+    setDestination(source)
+    setResult(null)
+  }, [source, destination])
+
   /* Find shortest path using A* */
   const handleFindPath = useCallback(async () => {
     if (!source || !destination) return
@@ -64,27 +72,33 @@ export default function App() {
   }, [source, destination, findPath])
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
-      <Sidebar
+    <div className="relative h-screen w-screen overflow-hidden">
+      {/* Full-screen map */}
+      <MapView
+        nodes={nodes}
+        source={source}
+        destination={destination}
+        onNodeClick={handleNodeClick}
+        result={result}
+      />
+
+      {/* Floating search panel (top-left) */}
+      <SearchPanel
         nodes={nodes}
         source={source}
         destination={destination}
         onSetSource={handleSetSource}
         onSetDestination={handleSetDestination}
         onFindPath={handleFindPath}
-        result={result}
+        onSwap={handleSwap}
         loading={loading}
         error={error}
       />
-      <div className="flex-1 h-full">
-        <MapView
-          nodes={nodes}
-          source={source}
-          destination={destination}
-          onNodeClick={handleNodeClick}
-          result={result}
-        />
-      </div>
+
+      {/* Floating route card (bottom-center) */}
+      {result && (
+        <RouteCard result={result} onClose={() => setResult(null)} />
+      )}
     </div>
   )
 }

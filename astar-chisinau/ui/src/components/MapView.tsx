@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   MapContainer,
   TileLayer,
@@ -8,7 +8,7 @@ import {
   useMapEvents,
   useMap,
 } from 'react-leaflet'
-import type { LatLngExpression } from 'leaflet'
+import type { LatLngExpression, LatLngBoundsExpression } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { GraphNode, PathResult } from '../types/graph'
 
@@ -59,19 +59,44 @@ function ClickHandler({
   return null
 }
 
-/* Sub-component: fly map to a node when it changes */
-function FlyTo({ node }: { node: GraphNode | null }) {
+/* Sub-component: fit map to show both markers or fly to a single one */
+function FitBounds({
+  source,
+  destination,
+  result,
+}: {
+  source: GraphNode | null
+  destination: GraphNode | null
+  result: PathResult | null
+}) {
   const map = useMap()
-  const prevRef = useRef<number | null>(null)
+  const prevKey = useRef('')
 
   useEffect(() => {
-    if (node && node.id !== prevRef.current) {
-      map.flyTo([node.lat, node.lon], Math.max(map.getZoom(), 15), {
-        duration: 0.8,
-      })
-      prevRef.current = node.id
+    const key = `${source?.id ?? ''}-${destination?.id ?? ''}-${result ? 'r' : ''}`
+    if (key === prevKey.current) return
+    prevKey.current = key
+
+    if (result && result.path.length > 1) {
+      const lats = result.path.map((p) => p.lat)
+      const lons = result.path.map((p) => p.lon)
+      const bounds: LatLngBoundsExpression = [
+        [Math.min(...lats) - 0.002, Math.min(...lons) - 0.005],
+        [Math.max(...lats) + 0.006, Math.max(...lons) + 0.005],
+      ]
+      map.fitBounds(bounds, { padding: [60, 60], duration: 0.8 })
+    } else if (source && destination) {
+      const bounds: LatLngBoundsExpression = [
+        [Math.min(source.lat, destination.lat) - 0.002, Math.min(source.lon, destination.lon) - 0.005],
+        [Math.max(source.lat, destination.lat) + 0.006, Math.max(source.lon, destination.lon) + 0.005],
+      ]
+      map.fitBounds(bounds, { padding: [60, 60], duration: 0.8 })
+    } else if (source) {
+      map.flyTo([source.lat, source.lon], Math.max(map.getZoom(), 15), { duration: 0.6 })
+    } else if (destination) {
+      map.flyTo([destination.lat, destination.lon], Math.max(map.getZoom(), 15), { duration: 0.6 })
     }
-  }, [node, map])
+  }, [source, destination, result, map])
 
   return null
 }
@@ -86,99 +111,81 @@ export default function MapView({
   const pathCoords: LatLngExpression[] =
     result?.path.map((p) => [p.lat, p.lon] as LatLngExpression) ?? []
 
-  /* Compute path midpoint for the popup */
-  const midpoint: LatLngExpression | null =
-    result && result.path.length > 0
-      ? ([
-          result.path[Math.floor(result.path.length / 2)].lat,
-          result.path[Math.floor(result.path.length / 2)].lon,
-        ] as LatLngExpression)
-      : null
-
-  const distKm = result ? (result.distance_m / 1000).toFixed(2) : '0'
-
-  /* Only render a subset of nodes as circle markers (for perf) */
-  const visibleNodes = useCallback(() => {
-    // Show all if under 3000, otherwise sample
-    if (nodes.length <= 3000) return nodes
-    const step = Math.ceil(nodes.length / 3000)
-    return nodes.filter((_, i) => i % step === 0)
-  }, [nodes])
-
   return (
     <MapContainer
       center={CENTER}
       zoom={ZOOM}
       className="h-full w-full"
-      zoomControl={true}
+      zoomControl={false}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
       />
 
       <ClickHandler nodes={nodes} onNodeClick={onNodeClick} />
-      <FlyTo node={source ?? destination} />
+      <FitBounds source={source} destination={destination} result={result} />
 
-      {/* All nodes as tiny blue dots */}
-      {visibleNodes().map((n) => (
-        <CircleMarker
-          key={n.id}
-          center={[n.lat, n.lon]}
-          radius={2}
-          pathOptions={{ color: '#3b82f6', fillColor: '#3b82f6', fillOpacity: 0.6, weight: 1 }}
+      {/* Route shadow (wider, translucent) */}
+      {pathCoords.length > 0 && (
+        <Polyline
+          positions={pathCoords}
+          pathOptions={{ color: '#000000', weight: 8, opacity: 0.1 }}
         />
-      ))}
-
-      {/* Ambulance location marker (blue) */}
-      {source && (
-        <CircleMarker
-          center={[source.lat, source.lon]}
-          radius={9}
-          pathOptions={{ color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.9, weight: 3 }}
-        >
-          <Popup>
-            <strong>Ambulance</strong>
-            <br />
-            {source.name || `Node #${source.id}`}
-          </Popup>
-        </CircleMarker>
-      )}
-
-      {/* Emergency location marker (red) */}
-      {destination && (
-        <CircleMarker
-          center={[destination.lat, destination.lon]}
-          radius={9}
-          pathOptions={{ color: '#dc2626', fillColor: '#ef4444', fillOpacity: 0.9, weight: 3 }}
-        >
-          <Popup>
-            <strong>Emergency</strong>
-            <br />
-            {destination.name || `Node #${destination.id}`}
-          </Popup>
-        </CircleMarker>
       )}
 
       {/* Route polyline */}
       {pathCoords.length > 0 && (
         <Polyline
           positions={pathCoords}
-          pathOptions={{ color: '#dc2626', weight: 5, opacity: 0.8 }}
+          pathOptions={{ color: '#4285F4', weight: 5, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }}
         />
       )}
 
-      {/* Midpoint popup with distance */}
-      {midpoint && result && (
-        <CircleMarker
-          center={midpoint}
-          radius={0}
-          pathOptions={{ opacity: 0 }}
-        >
-          <Popup autoClose={false} closeOnClick={false}>
-            <strong>{distKm} km</strong> · ETA {((result.distance_m / 1000 / 45) * 60).toFixed(1)} min
-          </Popup>
-        </CircleMarker>
+      {/* Ambulance marker (blue with white center) */}
+      {source && (
+        <>
+          <CircleMarker
+            center={[source.lat, source.lon]}
+            radius={12}
+            pathOptions={{ color: '#1d4ed8', fillColor: '#3b82f6', fillOpacity: 0.25, weight: 2 }}
+          />
+          <CircleMarker
+            center={[source.lat, source.lon]}
+            radius={7}
+            pathOptions={{ color: '#1d4ed8', fillColor: '#ffffff', fillOpacity: 1, weight: 3 }}
+          >
+            <Popup>
+              <div style={{ fontFamily: 'system-ui', fontSize: '13px' }}>
+                <strong>Ambulance</strong><br />
+                {source.name || `Node #${source.id}`}
+              </div>
+            </Popup>
+          </CircleMarker>
+        </>
+      )}
+
+      {/* Emergency marker (red with pulsing outer ring) */}
+      {destination && (
+        <>
+          <CircleMarker
+            center={[destination.lat, destination.lon]}
+            radius={14}
+            pathOptions={{ color: '#dc2626', fillColor: '#ef4444', fillOpacity: 0.15, weight: 2, dashArray: '4 4' }}
+          />
+          <CircleMarker
+            center={[destination.lat, destination.lon]}
+            radius={7}
+            pathOptions={{ color: '#dc2626', fillColor: '#ffffff', fillOpacity: 1, weight: 3 }}
+          >
+            <Popup>
+              <div style={{ fontFamily: 'system-ui', fontSize: '13px' }}>
+                <strong>Emergency</strong><br />
+                {destination.name || `Node #${destination.id}`}
+              </div>
+            </Popup>
+          </CircleMarker>
+        </>
       )}
     </MapContainer>
   )
