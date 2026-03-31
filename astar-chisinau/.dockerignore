@@ -1,0 +1,6 @@
+core/build
+ui/node_modules
+ui/dist
+data/raw.osm
+__pycache__
+.git
