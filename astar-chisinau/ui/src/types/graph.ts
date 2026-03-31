@@ -24,3 +24,12 @@ export interface PathResult {
 }
 
 export type Algorithm = 'astar' | 'dijkstra'
+
+export type POICategory = 'hospital' | 'clinic' | 'pharmacy' | 'emergency_station'
+
+export interface POI {
+  lat: number
+  lon: number
+  name: string
+  category: POICategory
+}

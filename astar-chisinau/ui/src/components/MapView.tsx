@@ -10,7 +10,8 @@ import {
 } from 'react-leaflet'
 import type { LatLngExpression, LatLngBoundsExpression } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import type { GraphNode, PathResult } from '../types/graph'
+import type { GraphNode, PathResult, POI, POICategory } from '../types/graph'
+import POILayer from './POILayer'
 
 const CENTER: LatLngExpression = [47.05, 28.845]
 const ZOOM = 14
@@ -21,6 +22,8 @@ interface MapViewProps {
   destination: GraphNode | null
   onNodeClick: (node: GraphNode) => void
   result: PathResult | null
+  pois: POI[]
+  visibleCategories: Set<POICategory>
 }
 
 /* Find the closest node to a lat/lon click */
@@ -107,6 +110,8 @@ export default function MapView({
   destination,
   onNodeClick,
   result,
+  pois,
+  visibleCategories,
 }: MapViewProps) {
   const pathCoords: LatLngExpression[] =
     result?.path.map((p) => [p.lat, p.lon] as LatLngExpression) ?? []
@@ -125,6 +130,9 @@ export default function MapView({
 
       <ClickHandler nodes={nodes} onNodeClick={onNodeClick} />
       <FitBounds source={source} destination={destination} result={result} />
+
+      {/* POI markers */}
+      <POILayer pois={pois} visibleCategories={visibleCategories} />
 
       {/* Route shadow (wider, translucent) */}
       {pathCoords.length > 0 && (

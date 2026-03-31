@@ -7,6 +7,7 @@ and exposes pathfinding endpoints for the React UI.
 import os
 import sys
 import csv
+import json
 import ctypes
 import time
 import platform
@@ -25,6 +26,7 @@ CORE_DIR = os.path.join(BASE_DIR, "..", "core", "build")
 
 NODES_CSV = os.path.join(DATA_DIR, "nodes.csv")
 EDGES_CSV = os.path.join(DATA_DIR, "edges.csv")
+POIS_JSON = os.path.join(DATA_DIR, "pois.json")
 
 # ── Detect shared library path ───────────────────────────────────────────────
 
@@ -141,6 +143,15 @@ def api_nodes():
     if GRAPH_HANDLE is None:
         return jsonify({"error": "Graph not loaded. Run preprocess.py and build the C library first."}), 503
     return jsonify(NODES)
+
+
+@app.route("/api/pois")
+def api_pois():
+    """Return POIs (hospitals, pharmacies, emergency stations) as JSON."""
+    if os.path.isfile(POIS_JSON):
+        with open(POIS_JSON, "r", encoding="utf-8") as f:
+            return jsonify(json.load(f))
+    return jsonify([])
 
 
 @app.route("/api/path", methods=["POST"])

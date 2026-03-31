@@ -1,0 +1,638 @@
+[
+  {
+    "lat": 47.0437626,
+    "lon": 28.8608191,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0466259,
+    "lon": 28.8618769,
+    "name": "Elody",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0495382,
+    "lon": 28.8617287,
+    "name": "Apoteka",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0542883,
+    "lon": 28.8656961,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0558969,
+    "lon": 28.8647093,
+    "name": "Elody",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0548134,
+    "lon": 28.8692619,
+    "name": "Orient",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.060778,
+    "lon": 28.8651335,
+    "name": "Peon",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0561009,
+    "lon": 28.8660971,
+    "name": "",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0547981,
+    "lon": 28.8650464,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0454498,
+    "lon": 28.8614111,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0556188,
+    "lon": 28.8661491,
+    "name": "Lazarus",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0624083,
+    "lon": 28.8493122,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0531378,
+    "lon": 28.8469822,
+    "name": "",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0623035,
+    "lon": 28.8461339,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0552735,
+    "lon": 28.848991,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0313207,
+    "lon": 28.8416307,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0315186,
+    "lon": 28.8444365,
+    "name": "Elody",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0537983,
+    "lon": 28.8499934,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0574117,
+    "lon": 28.8472151,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0492896,
+    "lon": 28.8628024,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0442037,
+    "lon": 28.8597121,
+    "name": "Orient",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0503457,
+    "lon": 28.8654411,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0505466,
+    "lon": 28.8643753,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0358554,
+    "lon": 28.8496842,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0315349,
+    "lon": 28.8226877,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0320094,
+    "lon": 28.8217864,
+    "name": "Farmacia Rom-Farm",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0365809,
+    "lon": 28.8569122,
+    "name": "Elody",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0505166,
+    "lon": 28.8678189,
+    "name": "Farmacia Mama",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.062423,
+    "lon": 28.8453038,
+    "name": "Farmacia Ginseng",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0617903,
+    "lon": 28.8444387,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0596603,
+    "lon": 28.8477533,
+    "name": "Ladona",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0560171,
+    "lon": 28.8517747,
+    "name": "Elody",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0345802,
+    "lon": 28.8618832,
+    "name": "Orient",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0347919,
+    "lon": 28.8624089,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.033571,
+    "lon": 28.8545902,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0434326,
+    "lon": 28.8678164,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0317775,
+    "lon": 28.8435195,
+    "name": "VogueDent",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0502607,
+    "lon": 28.8681409,
+    "name": "Elody",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0606824,
+    "lon": 28.8403238,
+    "name": "Farmacia Orient",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0367205,
+    "lon": 28.8656482,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0546129,
+    "lon": 28.8657947,
+    "name": "Sancos",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0505869,
+    "lon": 28.8655368,
+    "name": "Oftalmo Correct",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0570276,
+    "lon": 28.866776,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0328407,
+    "lon": 28.8438734,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0430365,
+    "lon": 28.8669789,
+    "name": "Apoteka",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0431531,
+    "lon": 28.8664016,
+    "name": "Orient",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0488415,
+    "lon": 28.8660251,
+    "name": "Centrul Medical “Medeferent P”",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0550026,
+    "lon": 28.8659819,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0555261,
+    "lon": 28.862455,
+    "name": "Farmacia ta",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.038189,
+    "lon": 28.8295294,
+    "name": "Gedeon Richter",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0366835,
+    "lon": 28.8279892,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0365018,
+    "lon": 28.8281913,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0458158,
+    "lon": 28.8479411,
+    "name": "Farmacie Veterinară „Nicoleta-Lux”",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0313693,
+    "lon": 28.8217645,
+    "name": "Apoteka",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0471256,
+    "lon": 28.8634903,
+    "name": "Nobel İlaç Moldova",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0304424,
+    "lon": 28.8203923,
+    "name": "Salonul Ortopedic „Osteomed”",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0379848,
+    "lon": 28.8607604,
+    "name": "Școala Spatelui",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0358126,
+    "lon": 28.8621254,
+    "name": "Elody",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0518877,
+    "lon": 28.8648614,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0452041,
+    "lon": 28.8612597,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0437902,
+    "lon": 28.8574667,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.053073,
+    "lon": 28.8580324,
+    "name": "Lupașcu Orl",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0309309,
+    "lon": 28.8461174,
+    "name": "Centrul Medical Specializat pentru Imigranți și Emigranți",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0588629,
+    "lon": 28.8681269,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0326055,
+    "lon": 28.8435195,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0450782,
+    "lon": 28.86215,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0314379,
+    "lon": 28.8392962,
+    "name": "Centrul Municipal de Vaccinare",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0444209,
+    "lon": 28.8330316,
+    "name": "Peon",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0461201,
+    "lon": 28.8615958,
+    "name": "Immuno+",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0356684,
+    "lon": 28.8495068,
+    "name": "Sante",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0313371,
+    "lon": 28.8454596,
+    "name": "Centrul de Sănătate pentru Studenți",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0455744,
+    "lon": 28.860088,
+    "name": "Eternal Beauty",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0314997,
+    "lon": 28.8417305,
+    "name": "Clinica Dr. Terzi",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.037553,
+    "lon": 28.826023,
+    "name": "ClasicMed",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0311604,
+    "lon": 28.8318399,
+    "name": "Clinica „Emanuel”",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0364451,
+    "lon": 28.8414378,
+    "name": "Invitro",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0365733,
+    "lon": 28.8412589,
+    "name": "Felicia",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.053878,
+    "lon": 28.864577,
+    "name": "Invitro",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0320675,
+    "lon": 28.8216958,
+    "name": "Invitro",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.043012,
+    "lon": 28.856208,
+    "name": "Invitro",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.044021,
+    "lon": 28.8621402,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0603956,
+    "lon": 28.8399018,
+    "name": "Elody",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0478199,
+    "lon": 28.8622668,
+    "name": "Dita",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.045225,
+    "lon": 28.8656432,
+    "name": "Hippocrates",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0504452,
+    "lon": 28.8632012,
+    "name": "Farmacia Familiei",
+    "category": "pharmacy"
+  },
+  {
+    "lat": 47.0636324,
+    "lon": 28.8447976,
+    "name": "Invitro",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0526636,
+    "lon": 28.8640862,
+    "name": "MediPartner",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0430628,
+    "lon": 28.8563902,
+    "name": "Sante",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0438211,
+    "lon": 28.8663705,
+    "name": "Centrul Consultativ Diagnostic AMT Rîșcani",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.031452,
+    "lon": 28.8452651,
+    "name": "Policlinica Spitalului Clinic al Ministerului Sănătății",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0328412,
+    "lon": 28.840114,
+    "name": "",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0330579,
+    "lon": 28.8416863,
+    "name": "Spitalul Clinic Municipal nr. 2 „Sfântul Arhanghel Mihail”",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0333327,
+    "lon": 28.8213884,
+    "name": "Spitalul Clinic de Traumatologie și Ortopedie",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.031105,
+    "lon": 28.8459384,
+    "name": "Spitalul Clinic al Ministerului Sănătății",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0604144,
+    "lon": 28.8396888,
+    "name": "Centrul Medicilor de Familie nr. 10",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0337613,
+    "lon": 28.8240569,
+    "name": "Clinica Universitară Stomatologică a Universității de Stat de Medicină și Farmacie „Nicolae Testemițanu”",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0599585,
+    "lon": 28.8399607,
+    "name": "Dispensarul Republican de Narcologie (Secția nr. 4)",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0366972,
+    "lon": 28.853843,
+    "name": "Stația de Ambulanțe",
+    "category": "emergency_station"
+  },
+  {
+    "lat": 47.0322342,
+    "lon": 28.8380278,
+    "name": "Dispensarul Republican de Narcologie",
+    "category": "clinic"
+  },
+  {
+    "lat": 47.0300366,
+    "lon": 28.8416836,
+    "name": "Maternitatea Municipală nr. 2 / Centrul Municipal de Andrologie",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0365847,
+    "lon": 28.8536263,
+    "name": "Punctul traumatologic nr. 1",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0337423,
+    "lon": 28.854226,
+    "name": "Spitalul Internațional „Medpark”",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0332386,
+    "lon": 28.8270045,
+    "name": "Spitalul Clinic Municipal nr. 4",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0501674,
+    "lon": 28.8684295,
+    "name": "Centrul Medicilor de Familie nr. 12",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0631296,
+    "lon": 28.8475524,
+    "name": "Centrul Național de Medicină Sportivă „Atletmed”",
+    "category": "hospital"
+  },
+  {
+    "lat": 47.0449091,
+    "lon": 28.8676712,
+    "name": "Spitalul Clinic Municipal nr. 3 „Sfânta Treime“",
+    "category": "hospital"
+  }
+]
