@@ -12,9 +12,16 @@ import type { LatLngExpression, LatLngBoundsExpression } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { GraphNode, PathResult, POI, POICategory } from '../types/graph'
 import POILayer from './POILayer'
+import AnimationLayer from './AnimationLayer'
 
 const CENTER: LatLngExpression = [47.025, 28.825]
 const ZOOM = 13
+
+interface AnimState {
+  exploredEdges: [number, number][]
+  newEdges: [number, number][]
+  currentNode: number
+}
 
 interface MapViewProps {
   nodes: GraphNode[]
@@ -24,6 +31,7 @@ interface MapViewProps {
   result: PathResult | null
   pois: POI[]
   visibleCategories: Set<POICategory>
+  animState: AnimState | null
 }
 
 /* Find the closest node to a lat/lon click */
@@ -112,6 +120,7 @@ export default function MapView({
   result,
   pois,
   visibleCategories,
+  animState,
 }: MapViewProps) {
   const pathCoords: LatLngExpression[] =
     result?.path.map((p) => [p.lat, p.lon] as LatLngExpression) ?? []
@@ -131,19 +140,28 @@ export default function MapView({
       <ClickHandler nodes={nodes} onNodeClick={onNodeClick} />
       <FitBounds source={source} destination={destination} result={result} />
 
+      {/* A* animation overlay — draws green exploration + blue path on canvas */}
+      {animState && (
+        <AnimationLayer
+          nodes={nodes}
+          exploredEdges={animState.exploredEdges}
+          newEdges={animState.newEdges}
+          currentNode={animState.currentNode}
+          pathCoords={result?.path.map((p) => [p.lat, p.lon] as [number, number]) ?? []}
+        />
+      )}
+
       {/* POI markers */}
       <POILayer pois={pois} visibleCategories={visibleCategories} />
 
-      {/* Route shadow (wider, translucent) */}
-      {pathCoords.length > 0 && (
+      {/* Route polylines (only when no animation overlay is active) */}
+      {!animState && pathCoords.length > 0 && (
         <Polyline
           positions={pathCoords}
           pathOptions={{ color: '#000000', weight: 8, opacity: 0.1 }}
         />
       )}
-
-      {/* Route polyline */}
-      {pathCoords.length > 0 && (
+      {!animState && pathCoords.length > 0 && (
         <Polyline
           positions={pathCoords}
           pathOptions={{ color: '#4285F4', weight: 5, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }}
