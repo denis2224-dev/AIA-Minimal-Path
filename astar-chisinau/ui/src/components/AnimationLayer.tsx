@@ -110,7 +110,7 @@ export default function AnimationLayer({
         ctx.stroke()
       }
 
-      // Pass 2: solid green explored edges
+      // Pass 2: solid red explored edges
       ctx.globalAlpha = 0.9
       ctx.strokeStyle = '#ef4444'
       ctx.lineWidth = baseWidth
@@ -127,7 +127,7 @@ export default function AnimationLayer({
         ctx.stroke()
       }
 
-      // Pass 3: new edges (current step) on top — brighter green
+      // Pass 3: new edges (current step) on top — brighter red
       ctx.globalAlpha = 1
       ctx.strokeStyle = '#dc2626'
       ctx.lineWidth = newWidth
@@ -200,7 +200,7 @@ export default function AnimationLayer({
     return () => {
       cancelAnimationFrame(rafId)
     }
-  }, [map, nodes, exploredEdges, newEdges, currentNode])
+  }, [map, nodes, exploredEdges, newEdges, currentNode, pathCoords])
 
   return null
 }
