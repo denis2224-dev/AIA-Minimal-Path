@@ -145,6 +145,19 @@ def api_nodes():
     return jsonify(NODES)
 
 
+@app.route("/api/edges")
+def api_edges():
+    """Return graph edges as a JSON array of [u, v, weight_m]."""
+    if not os.path.isfile(EDGES_CSV):
+        return jsonify([])
+    edges = []
+    with open(EDGES_CSV, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            edges.append([int(row["u"]), int(row["v"]), float(row["weight_m"])])
+    return jsonify(edges)
+
+
 @app.route("/api/pois")
 def api_pois():
     """Return POIs (hospitals, pharmacies, emergency stations) as JSON."""
