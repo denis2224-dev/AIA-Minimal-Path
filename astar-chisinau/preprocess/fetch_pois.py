@@ -15,7 +15,7 @@ except ImportError:
     sys.exit(1)
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-BBOX = "47.03,28.82,47.07,28.87"
+BBOX = "46.97,28.77,47.08,28.88"
 
 OVERPASS_QUERY = f"""
 [out:json][timeout:60];

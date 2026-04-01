@@ -13,8 +13,8 @@ import 'leaflet/dist/leaflet.css'
 import type { GraphNode, PathResult, POI, POICategory } from '../types/graph'
 import POILayer from './POILayer'
 
-const CENTER: LatLngExpression = [47.05, 28.845]
-const ZOOM = 14
+const CENTER: LatLngExpression = [47.025, 28.825]
+const ZOOM = 13
 
 interface MapViewProps {
   nodes: GraphNode[]

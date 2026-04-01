@@ -24,9 +24,9 @@ except ImportError:
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 OVERPASS_QUERY = """
-[out:xml][timeout:60];
+[out:xml][timeout:120];
 (
-  way["highway"]["highway"!~"footway|steps|path|cycleway"](47.03,28.82,47.07,28.87);
+  way["highway"]["highway"!~"footway|steps|path|cycleway"](46.97,28.77,47.08,28.88);
   >;
 );
 out body;
