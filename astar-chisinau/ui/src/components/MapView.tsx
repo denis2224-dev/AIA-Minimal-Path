@@ -140,7 +140,7 @@ export default function MapView({
       <ClickHandler nodes={nodes} onNodeClick={onNodeClick} />
       <FitBounds source={source} destination={destination} result={result} />
 
-      {/* A* animation overlay — draws green exploration + blue path on canvas */}
+      {/* A* animation overlay — draws red exploration + blue path on canvas */}
       {animState && (
         <AnimationLayer
           nodes={nodes}
