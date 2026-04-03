@@ -1,8 +1,4 @@
-/**
- * Canvas-based animation overlay that draws explored edges as colored
- * line segments on the Leaflet map. Shows the algorithm tracing through
- * streets step by step.
- */
+// Canvas-based animation overlay for the A* visualization
 
 import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
@@ -27,8 +23,7 @@ export default function AnimationLayer({
   const map = useMap()
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
-  // Create canvas once — attach directly to the map container (not a pane)
-  // This avoids the CSS transform glitch that overlayPane causes during pan/zoom.
+  // Create canvas and attach it to the map container
   useEffect(() => {
     const container = map.getContainer()
     const canvas = document.createElement('canvas')
@@ -49,7 +44,7 @@ export default function AnimationLayer({
     }
   }, [map])
 
-  // Redraw continuously via requestAnimationFrame for glitch-free tracking
+  // Redraw continuously using requestAnimationFrame
   useEffect(() => {
     let rafId = 0
 
@@ -59,7 +54,7 @@ export default function AnimationLayer({
       const size = map.getSize()
       const dpr = window.devicePixelRatio || 1
 
-      // Resize canvas if needed
+      // Resize if needed
       const w = size.x * dpr
       const h = size.y * dpr
       if (c.width !== w || c.height !== h) {
@@ -73,7 +68,7 @@ export default function AnimationLayer({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, size.x, size.y)
 
-      // Scale line widths with zoom so they stay visible when zoomed out
+      // Scale line widths with zoom level
       const zoom = map.getZoom()
       const scale = Math.pow(1.35, zoom - 13) // 1x at zoom 13, grows/shrinks with zoom
       const baseWidth = Math.max(2, 3 * scale)
@@ -82,7 +77,7 @@ export default function AnimationLayer({
       const dotRadius = Math.max(3, 5 * scale)
       const dotHalo = Math.max(6, 12 * scale)
 
-      // Build a set of new edge keys for highlighting
+      // Track which edges are new (current step)
       const newEdgeSet = new Set<string>()
       for (const [u, v] of newEdges) {
         newEdgeSet.add(`${u}-${v}`)
@@ -93,7 +88,7 @@ export default function AnimationLayer({
 
       const total = exploredEdges.length
 
-      // Pass 1: shadow under all explored edges
+      // Draw shadow under explored edges
       ctx.globalAlpha = 0.1
       ctx.strokeStyle = '#000000'
       ctx.lineWidth = shadowWidth
@@ -110,7 +105,7 @@ export default function AnimationLayer({
         ctx.stroke()
       }
 
-      // Pass 2: solid red explored edges
+      // Draw explored edges in red
       ctx.globalAlpha = 0.9
       ctx.strokeStyle = '#ef4444'
       ctx.lineWidth = baseWidth
@@ -127,7 +122,7 @@ export default function AnimationLayer({
         ctx.stroke()
       }
 
-      // Pass 3: new edges (current step) on top — brighter red
+      // Draw new edges (current step) in brighter red
       ctx.globalAlpha = 1
       ctx.strokeStyle = '#dc2626'
       ctx.lineWidth = newWidth
@@ -142,7 +137,7 @@ export default function AnimationLayer({
         ctx.stroke()
       }
 
-      // Draw current node as a bright red dot
+      // Draw current node as a red dot
       if (currentNode >= 0 && nodes[currentNode]) {
         const node = nodes[currentNode]
         const pt = map.latLngToContainerPoint([node.lat, node.lon])
@@ -160,9 +155,9 @@ export default function AnimationLayer({
         ctx.fill()
       }
 
-      // Pass 4: draw the shortest path (blue) on top of everything
+      // Draw the shortest path in blue on top
       if (pathCoords.length > 1) {
-        // Shadow
+        // Path shadow
         ctx.globalAlpha = 0.1
         ctx.strokeStyle = '#000000'
         ctx.lineWidth = shadowWidth + 3
@@ -174,7 +169,7 @@ export default function AnimationLayer({
         }
         ctx.stroke()
 
-        // Blue line
+        // Blue path line
         ctx.globalAlpha = 0.9
         ctx.strokeStyle = '#4285F4'
         ctx.lineWidth = baseWidth + 2
@@ -190,7 +185,7 @@ export default function AnimationLayer({
       ctx.globalAlpha = 1
     }
 
-    // Use rAF loop for perfectly smooth tracking during pan/zoom
+    // Animation loop
     function loop() {
       draw()
       rafId = requestAnimationFrame(loop)

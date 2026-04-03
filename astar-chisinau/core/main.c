@@ -1,9 +1,5 @@
-/*
- * main.c — CLI test runner for the A* / Dijkstra pathfinder.
- *
- * Usage:
- *   ./astar_cli <nodes.csv> <edges.csv> <src_id> <dst_id>
- */
+// CLI test runner for the A* / Dijkstra pathfinder
+// Usage: ./astar_cli <nodes.csv> <edges.csv> <src_id> <dst_id>
 
 #include "astar.h"
 
@@ -23,7 +19,7 @@ int main(int argc, char **argv)
     int src = atoi(argv[3]);
     int dst = atoi(argv[4]);
 
-    /* Load graph */
+    // Load graph
     Graph *g = graph_create(nodes_path, edges_path);
     if (!g) {
         fprintf(stderr, "[ERROR] Failed to load graph.\n");
@@ -39,7 +35,7 @@ int main(int argc, char **argv)
     int *path = (int *)malloc(sizeof(int) * g->n);
     int path_len = 0, expanded = 0;
 
-    /* ── A* ─────────────────────────────────────────────────────────────── */
+    // Run A*
     clock_t t0 = clock();
     float dist_a = astar_search(g, src, dst, path, &path_len, &expanded);
     clock_t t1 = clock();
@@ -52,7 +48,7 @@ int main(int argc, char **argv)
                dist_a, path_len, time_a, expanded);
     }
 
-    /* ── Dijkstra ───────────────────────────────────────────────────────── */
+    // Run Dijkstra
     int path_len_d = 0, expanded_d = 0;
     clock_t t2 = clock();
     float dist_d = dijkstra_search(g, src, dst, path, &path_len_d, &expanded_d);
@@ -66,7 +62,7 @@ int main(int argc, char **argv)
                dist_d, path_len_d, time_d, expanded_d);
     }
 
-    /* Sanity check: both algorithms must agree on distance */
+    // Sanity check: both algorithms must agree on distance
     if (dist_a >= 0 && dist_d >= 0) {
         float diff = dist_a - dist_d;
         if (diff < 0) diff = -diff;

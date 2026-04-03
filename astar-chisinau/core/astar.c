@@ -1,13 +1,4 @@
-/*
- * astar.c — A* and Dijkstra over a CSR street graph.
- *
- * Implements:
- *   - CSV graph loader (nodes.csv + edges.csv → CSR)
- *   - Binary min-heap with decrease-key (position array)
- *   - A* search with Haversine heuristic
- *   - Dijkstra search (heuristic = 0)
- *   - Shared-library entry points for FFI (Python ctypes)
- */
+// A* and Dijkstra over a CSR street graph
 
 #include "astar.h"
 
@@ -17,22 +8,18 @@
 #include <math.h>
 #include <float.h>
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Constants
- * ═══════════════════════════════════════════════════════════════════════════ */
+// Constants
 
 #define EARTH_RADIUS_M 6371000.0
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Haversine distance (metres)
- * ═══════════════════════════════════════════════════════════════════════════ */
+// Haversine distance (metres)
 
 static inline double deg2rad(double d) { return d * (M_PI / 180.0); }
 
-/* Returns the straight-line distance in metres between two lat/lon points. */
+// Returns the straight-line distance in metres between two lat/lon points
 static float haversine(double lat1, double lon1, double lat2, double lon2)
 {
     double rlat1 = deg2rad(lat1), rlon1 = deg2rad(lon1);
@@ -44,13 +31,9 @@ static float haversine(double lat1, double lon1, double lat2, double lon2)
     return (float)(EARTH_RADIUS_M * 2.0 * asin(sqrt(a)));
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Binary min-heap with decrease-key
- *
- *  heap[]  – array of (node, f-value) pairs
- *  pos[]   – pos[node] = index in heap[], or -1 if not present
- *  size    – current number of elements
- * ═══════════════════════════════════════════════════════════════════════════ */
+// Binary min-heap with decrease-key
+// heap[] = array of (node, f-value) pairs
+// pos[node] = index in heap[], or -1 if not present
 
 typedef struct {
     int   node;
@@ -59,12 +42,12 @@ typedef struct {
 
 typedef struct {
     HeapNode *data;
-    int      *pos;   /* pos[node_id] → heap index, -1 if absent */
+    int      *pos;
     int       size;
     int       cap;
 } MinHeap;
 
-/* Allocate a heap that can hold up to `capacity` nodes. */
+// Allocate a heap that can hold up to 'capacity' nodes
 static MinHeap *heap_create(int capacity)
 {
     MinHeap *h = (MinHeap *)malloc(sizeof(MinHeap));
@@ -83,7 +66,7 @@ static void heap_free(MinHeap *h)
     free(h);
 }
 
-/* Swap two heap entries and update position map. */
+// Swap two heap entries and update position map
 static inline void heap_swap(MinHeap *h, int a, int b)
 {
     HeapNode tmp = h->data[a];
@@ -93,7 +76,7 @@ static inline void heap_swap(MinHeap *h, int a, int b)
     h->pos[h->data[b].node] = b;
 }
 
-/* Bubble an element up to restore the min-heap invariant. */
+// Bubble up to restore the min-heap property
 static void heap_bubble_up(MinHeap *h, int idx)
 {
     while (idx > 0) {
@@ -104,7 +87,7 @@ static void heap_bubble_up(MinHeap *h, int idx)
     }
 }
 
-/* Bubble an element down to restore the min-heap invariant. */
+// Bubble down to restore the min-heap property
 static void heap_bubble_down(MinHeap *h, int idx)
 {
     int n = h->size;
@@ -120,19 +103,19 @@ static void heap_bubble_down(MinHeap *h, int idx)
     }
 }
 
-/* Push a node with f-value, or decrease its key if already present. */
+// Push a node or decrease its key if already in the heap
 static void heap_push_or_decrease(MinHeap *h, int node, float f)
 {
     int idx = h->pos[node];
     if (idx >= 0) {
-        /* Already in heap — decrease key */
+        // Already in heap, decrease key
         if (f < h->data[idx].f) {
             h->data[idx].f = f;
             heap_bubble_up(h, idx);
         }
         return;
     }
-    /* Insert new entry at the end */
+    // Insert new entry at the end
     idx = h->size++;
     h->data[idx].node = node;
     h->data[idx].f    = f;
@@ -140,7 +123,7 @@ static void heap_push_or_decrease(MinHeap *h, int node, float f)
     heap_bubble_up(h, idx);
 }
 
-/* Pop the node with the smallest f-value. Returns its node id via *out_node. */
+// Pop the node with the smallest f-value
 static float heap_pop(MinHeap *h, int *out_node)
 {
     HeapNode top = h->data[0];
@@ -156,11 +139,9 @@ static float heap_pop(MinHeap *h, int *out_node)
     return f;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  CSV graph loader
- * ═══════════════════════════════════════════════════════════════════════════ */
+// CSV graph loader
 
-/* Helper: read a full line from a FILE* into a malloc'd buffer. */
+// Read a full line from a file into a malloc'd buffer
 static char *read_line(FILE *fp)
 {
     int cap = 256, len = 0;
@@ -171,18 +152,18 @@ static char *read_line(FILE *fp)
         buf[len++] = (char)c;
     }
     if (len == 0 && c == EOF) { free(buf); return NULL; }
-    /* Strip trailing \r (Windows line endings) */
+    // Strip trailing \r (Windows line endings)
     if (len > 0 && buf[len - 1] == '\r') len--;
     buf[len] = '\0';
     return buf;
 }
 
-/* Count lines in a file (excluding the header). */
+// Count lines in a file (excluding the header)
 static int count_data_lines(const char *path)
 {
     FILE *fp = fopen(path, "r");
     if (!fp) return -1;
-    int count = -1; /* start at -1 to skip header */
+    int count = -1; // start at -1 to skip header
     int c;
     int at_line_start = 1;
     while ((c = fgetc(fp)) != EOF) {
@@ -194,15 +175,10 @@ static int count_data_lines(const char *path)
     return count < 0 ? 0 : count;
 }
 
-/*
- * Load graph from nodes.csv and edges.csv into a CSR Graph structure.
- *
- * nodes.csv format: id,lat,lon,name
- * edges.csv format: u,v,weight_m
- */
+// Load graph from nodes.csv and edges.csv into a CSR Graph structure
 Graph *graph_create(const char *nodes_path, const char *edges_path)
 {
-    /* ── Count nodes and edges ──────────────────────────────────────────── */
+    // Count nodes and edges
     int n = count_data_lines(nodes_path);
     int m = count_data_lines(edges_path);
     if (n <= 0 || m <= 0) {
@@ -220,19 +196,18 @@ Graph *graph_create(const char *nodes_path, const char *edges_path)
     g->to     = (int *)malloc(sizeof(int) * m);
     g->weight = (float *)malloc(sizeof(float) * m);
 
-    /* ── Read nodes ─────────────────────────────────────────────────────── */
     FILE *fp = fopen(nodes_path, "r");
     if (!fp) { fprintf(stderr, "[ERROR] Cannot open %s\n", nodes_path); graph_destroy(g); return NULL; }
-    char *line = read_line(fp); /* skip header */
+    char *line = read_line(fp); 
     free(line);
 
     for (int i = 0; i < n; i++) {
         line = read_line(fp);
         if (!line) break;
-        /* Parse: id,lat,lon,name */
+        // Parse: id,lat,lon,name
         int id; double lat, lon;
         char namebuf[512] = {0};
-        /* Find first three commas */
+        // Find first three commas
         char *p1 = strchr(line, ',');
         if (p1) {
             *p1 = '\0'; id = atoi(line);
@@ -262,15 +237,15 @@ Graph *graph_create(const char *nodes_path, const char *edges_path)
     }
     fclose(fp);
 
-    /* ── Read edges (two-pass: count per source, then fill) ─────────────── */
-    /* First pass: count outgoing edges per node to build offsets */
+    // Read edges (two-pass: count per source, then fill)
+    // First pass: count outgoing edges per node to build offsets
     int *deg = (int *)calloc(n, sizeof(int));
 
     fp = fopen(edges_path, "r");
     if (!fp) { fprintf(stderr, "[ERROR] Cannot open %s\n", edges_path); free(deg); graph_destroy(g); return NULL; }
-    line = read_line(fp); free(line); /* skip header */
+    line = read_line(fp); free(line); // skip header
 
-    /* Temporary edge storage */
+    // Temporary edge storage
     int *eu = (int *)malloc(sizeof(int) * m);
     int *ev = (int *)malloc(sizeof(int) * m);
     float *ew = (float *)malloc(sizeof(float) * m);
@@ -290,15 +265,15 @@ Graph *graph_create(const char *nodes_path, const char *edges_path)
         free(line);
     }
     fclose(fp);
-    g->m = edge_idx; /* actual edge count */
+    g->m = edge_idx; // actual edge count
 
-    /* Build offset array (prefix sum of degrees) */
+    // Build offset array (prefix sum of degrees)
     g->offsets[0] = 0;
     for (int i = 0; i < n; i++) {
         g->offsets[i + 1] = g->offsets[i] + deg[i];
     }
 
-    /* Second pass: fill to[] and weight[] using a write cursor per node */
+    // Second pass: fill to[] and weight[] using a write cursor per node
     int *cursor = (int *)calloc(n, sizeof(int));
     for (int i = 0; i < edge_idx; i++) {
         int u = eu[i];
@@ -330,13 +305,9 @@ void graph_destroy(Graph *g)
     free(g);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  A* search
- *
- *  Uses Haversine distance as an admissible heuristic (straight-line ≤ road).
- *  Maintains g-values (shortest known distance from src) and reconstructs
- *  the path via a predecessor array.
- * ═══════════════════════════════════════════════════════════════════════════ */
+// A* search
+// Uses Haversine distance as an admissible heuristic
+// Maintains g-values and reconstructs the path via a predecessor array
 
 float astar_search(const Graph *g, int src, int dst,
                    int *path, int *path_len, int *expanded)
@@ -366,7 +337,7 @@ float astar_search(const Graph *g, int src, int dst,
         closed[u] = 1;
         exp_count++;
 
-        /* Goal reached — reconstruct path */
+        // Goal reached, reconstruct path
         if (u == dst) {
             result = gval[dst];
             int len = 0;
@@ -377,7 +348,7 @@ float astar_search(const Graph *g, int src, int dst,
             break;
         }
 
-        /* Relax neighbours */
+        // Relax neighbours
         for (int e = g->offsets[u]; e < g->offsets[u + 1]; e++) {
             int v = g->to[e];
             if (closed[v]) continue;
@@ -399,9 +370,7 @@ float astar_search(const Graph *g, int src, int dst,
     return result;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Dijkstra search (reference — heuristic is always 0)
- * ═══════════════════════════════════════════════════════════════════════════ */
+// Dijkstra search (same as A* but heuristic is always 0)
 
 float dijkstra_search(const Graph *g, int src, int dst,
                       int *path, int *path_len, int *expanded)
@@ -459,9 +428,7 @@ float dijkstra_search(const Graph *g, int src, int dst,
     return result;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
- *  Shared-library API (FFI entry points)
- * ═══════════════════════════════════════════════════════════════════════════ */
+// Shared-library API (FFI entry points for Python ctypes)
 
 EXPORT void *graph_load(const char *nodes_path, const char *edges_path)
 {

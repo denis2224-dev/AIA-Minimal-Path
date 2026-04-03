@@ -1,34 +1,31 @@
-/**
- * A* pathfinding implemented as a generator that yields each exploration step.
- * Used for the animated visualization mode.
- */
+// A* pathfinding generator for animated visualization
 
 import type { GraphNode } from '../types/graph'
 
-// Adjacency list: nodeId → array of [neighborId, weight]
+// Adjacency list type
 export type AdjList = Map<number, [number, number][]>
 
-/** An edge drawn on the map: [fromNodeId, toNodeId] */
+// An edge on the map: [from, to]
 export type Edge = [number, number]
 
 export interface AstarStep {
-  /** New edges explored in this step (from current node to its neighbors) */
+  // New edges explored in this step
   newEdges: Edge[]
-  /** All explored edges accumulated so far */
+  // All explored edges so far
   exploredEdges: Edge[]
-  /** The current node being expanded */
+  // Current node being expanded
   current: number
-  /** Number of nodes expanded so far */
+  // Number of nodes expanded
   nodesExpanded: number
-  /** Whether the algorithm has finished */
+  // Whether the algorithm has finished
   done: boolean
-  /** The final path (only set when done=true and path found) */
+  // The final path (only when done)
   path: number[] | null
-  /** Total distance in meters (only set when done=true) */
+  // Total distance in meters
   distance: number
 }
 
-/** Haversine distance between two nodes in meters */
+// Haversine distance between two nodes in meters
 function haversine(a: GraphNode, b: GraphNode): number {
   const R = 6_371_000
   const toRad = (d: number) => (d * Math.PI) / 180
@@ -40,9 +37,7 @@ function haversine(a: GraphNode, b: GraphNode): number {
   return 2 * R * Math.asin(Math.sqrt(h))
 }
 
-/**
- * Build adjacency list from raw edge tuples [u, v, weight].
- */
+// Build adjacency list from raw edge tuples [u, v, weight]
 export function buildAdjList(edges: [number, number, number][]): AdjList {
   const adj: AdjList = new Map()
   for (const [u, v, w] of edges) {
@@ -52,10 +47,7 @@ export function buildAdjList(edges: [number, number, number][]): AdjList {
   return adj
 }
 
-/**
- * Min-heap (priority queue) for A*.
- * Stores [priority, nodeId].
- */
+// Min-heap (priority queue) for A*
 class MinHeap {
   private data: [number, number][] = []
 
@@ -101,9 +93,7 @@ class MinHeap {
   }
 }
 
-/**
- * A* generator — yields a step each time a node is expanded.
- */
+// A* generator: yields a step each time a node is expanded
 export function* astarGenerator(
   nodes: GraphNode[],
   adj: AdjList,
@@ -126,13 +116,13 @@ export function* astarGenerator(
   while (heap.size > 0) {
     const [, current] = heap.pop()!
 
-    // Skip if already processed
+    // Skip already visited
     if (closedSet.has(current)) continue
 
     openSet.delete(current)
     closedSet.add(current)
 
-    // Found destination
+    // Destination found
     if (current === dstId) {
       const path: number[] = []
       let node = dstId
@@ -154,7 +144,7 @@ export function* astarGenerator(
       return
     }
 
-    // Expand neighbors and collect new edges
+    // Expand neighbors
     const neighbors = adj.get(current)
     const stepEdges: Edge[] = []
 
@@ -162,7 +152,7 @@ export function* astarGenerator(
       for (const [neighbor, weight] of neighbors) {
         if (closedSet.has(neighbor)) continue
 
-        // Always draw the edge being considered
+        // Draw the edge being considered
         stepEdges.push([current, neighbor])
 
         const tentativeG = gScore[current] + weight
@@ -178,7 +168,7 @@ export function* astarGenerator(
 
     allEdges.push(...stepEdges)
 
-    // Yield step with new edges
+    // Yield current step
     yield {
       newEdges: stepEdges,
       exploredEdges: allEdges,

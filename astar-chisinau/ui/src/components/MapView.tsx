@@ -34,7 +34,7 @@ interface MapViewProps {
   animState: AnimState | null
 }
 
-/* Find the closest node to a lat/lon click */
+// Find the closest node to a lat/lon click
 function findClosestNode(
   nodes: GraphNode[],
   lat: number,
@@ -53,7 +53,7 @@ function findClosestNode(
   return best
 }
 
-/* Sub-component: captures map clicks and snaps to nearest node */
+// Captures map clicks and snaps to nearest node
 function ClickHandler({
   nodes,
   onNodeClick,
@@ -70,7 +70,7 @@ function ClickHandler({
   return null
 }
 
-/* Sub-component: fit map to show both markers or fly to a single one */
+// Fit map to show both markers or fly to a single one
 function FitBounds({
   source,
   destination,
@@ -140,7 +140,7 @@ export default function MapView({
       <ClickHandler nodes={nodes} onNodeClick={onNodeClick} />
       <FitBounds source={source} destination={destination} result={result} />
 
-      {/* A* animation overlay — draws red exploration + blue path on canvas */}
+      {/* A* animation overlay */}
       {animState && (
         <AnimationLayer
           nodes={nodes}
@@ -151,10 +151,10 @@ export default function MapView({
         />
       )}
 
-      {/* POI markers */}
+      {/* POIs */}
       <POILayer pois={pois} visibleCategories={visibleCategories} />
 
-      {/* Route polylines (only when no animation overlay is active) */}
+      {/* Route polylines (no animation) */}
       {!animState && pathCoords.length > 0 && (
         <Polyline
           positions={pathCoords}
@@ -168,7 +168,7 @@ export default function MapView({
         />
       )}
 
-      {/* Ambulance marker (blue with white center) */}
+      {/* Source marker */}
       {source && (
         <>
           <CircleMarker
@@ -191,7 +191,7 @@ export default function MapView({
         </>
       )}
 
-      {/* Emergency marker (red with pulsing outer ring) */}
+      {/* Destination marker */}
       {destination && (
         <>
           <CircleMarker

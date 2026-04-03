@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Fetch hospitals, pharmacies, and emergency stations from Overpass API
-for the Rîșcani sector of Chișinău and save as data/pois.json.
-"""
+# Fetch hospitals, pharmacies, and emergency stations from Overpass API
+# and save as data/pois.json
 
 import os
 import sys
@@ -49,7 +47,7 @@ out center;
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data")
 
 def classify(tags):
-    """Classify a POI into a category based on its OSM tags."""
+    # Classify a POI into a category based on its OSM tags
     amenity = tags.get("amenity", "")
     emergency = tags.get("emergency", "")
 
@@ -82,7 +80,7 @@ def main():
         if category is None:
             continue
 
-        # Get coordinates (nodes have lat/lon, ways/relations have center)
+        # Get coordinates
         if el["type"] == "node":
             lat = el.get("lat")
             lon = el.get("lon")
@@ -94,7 +92,7 @@ def main():
         if lat is None or lon is None:
             continue
 
-        # Deduplicate by rounding coordinates
+        # Deduplicate
         key = f"{category}-{round(lat, 4)}-{round(lon, 4)}"
         if key in seen:
             continue
@@ -109,7 +107,7 @@ def main():
             "category": category,
         })
 
-    # Count by category
+    # Count POIs by category
     counts = {}
     for p in pois:
         counts[p["category"]] = counts.get(p["category"], 0) + 1
@@ -118,7 +116,7 @@ def main():
     for cat, count in sorted(counts.items()):
         print(f"       - {cat}: {count}")
 
-    # Write to JSON
+    # Write to JSON file
     os.makedirs(DATA_DIR, exist_ok=True)
     out_path = os.path.join(DATA_DIR, "pois.json")
     with open(out_path, "w", encoding="utf-8") as f:

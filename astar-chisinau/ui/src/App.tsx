@@ -16,14 +16,14 @@ interface AnimState {
   currentNode: number
 }
 
-// Delay between steps for each speed mode
+// Delay between steps for each speed
 const STEP_DELAYS: Record<AnimSpeed, number> = {
   instant: 0,
-  fast: 0,     // batched — many steps per frame
-  slow: 60,    // ~16 fps, one step at a time — slow water-pouring feel
+  fast: 0,     // batched, many steps per frame
+  slow: 60,    // one step at a time
 }
 
-// How many steps to process per animation frame in 'fast' mode
+// Steps per animation frame in fast mode
 const FAST_BATCH_SIZE = 20
 
 export default function App() {
@@ -43,7 +43,7 @@ export default function App() {
   const clickCount = useRef(0)
   const stopRef = useRef(false)
 
-  /* Fetch all graph nodes, edges, and POIs on mount */
+  // Fetch all graph nodes, edges, and POIs on mount
   useEffect(() => {
     fetch('/api/nodes')
       .then((res) => {
@@ -70,7 +70,7 @@ export default function App() {
       .catch((err) => console.error('Failed to load POIs:', err))
   }, [])
 
-  /* POI counts by category */
+  // POI counts by category
   const poiCounts = useMemo(() => {
     const counts = { hospital: 0, clinic: 0, pharmacy: 0, emergency_station: 0 } as Record<POICategory, number>
     for (const p of pois) counts[p.category] = (counts[p.category] || 0) + 1
@@ -86,7 +86,7 @@ export default function App() {
     })
   }, [])
 
-  /* Handle map node clicks: 1st=ambulance, 2nd=emergency, 3rd=reset */
+  // Handle map node clicks: 1st=source, 2nd=destination, 3rd=reset
   const handleNodeClick = useCallback((node: GraphNode) => {
     const next = clickCount.current + 1
     if (next === 1) {
@@ -107,7 +107,7 @@ export default function App() {
     clickCount.current = next
   }, [])
 
-  /* Set source/destination from search panel */
+  // Set source/destination from search panel
   const handleSetSource = useCallback((node: GraphNode | null) => {
     setSource(node)
     setResult(null)
@@ -122,7 +122,7 @@ export default function App() {
     if (node && source) clickCount.current = 2
   }, [source])
 
-  /* Swap source and destination */
+  // Swap source and destination
   const handleSwap = useCallback(() => {
     setSource(destination)
     setDestination(source)
@@ -130,12 +130,12 @@ export default function App() {
     setAnimState(null)
   }, [source, destination])
 
-  /* Stop ongoing animation */
+  // Stop ongoing animation
   const handleStopAnimation = useCallback(() => {
     stopRef.current = true
   }, [])
 
-  /* Run animated A* (JS generator) */
+  // Run animated A* using the JS generator
   const runAnimated = useCallback(async (speed: AnimSpeed) => {
     if (!source || !destination || !adjList || nodes.length === 0) return
 
@@ -156,7 +156,7 @@ export default function App() {
       if (stopRef.current) break
 
       if (speed === 'fast') {
-        // Batch multiple steps per frame
+        // Batch steps per frame
         for (let i = 0; i < FAST_BATCH_SIZE; i++) {
           const { value, done } = gen.next()
           if (done || !value) break
@@ -171,7 +171,7 @@ export default function App() {
 
       if (!lastStep) break
 
-      // Update visualization state
+      // Update animation state
       setAnimState({
         exploredEdges: [...lastStep.exploredEdges],
         newEdges: lastStep.newEdges,
@@ -180,18 +180,18 @@ export default function App() {
 
       if (lastStep.done) break
 
-      // Wait based on speed
+      // Wait between steps
       if (delay > 0) {
         await sleep(delay)
       } else {
-        // Yield to browser for rendering
+        // Let the browser render
         await new Promise((r) => requestAnimationFrame(r))
       }
     }
 
     const elapsed = performance.now() - t0
 
-    // Build result from the animated path
+    // Build result from the path
     if (lastStep?.done && lastStep.path) {
       const path = lastStep.path.map((id) => ({
         id,
@@ -212,7 +212,7 @@ export default function App() {
     setIsAnimating(false)
   }, [source, destination, adjList, nodes])
 
-  /* Find shortest path — instant (C backend) or animated (JS) */
+  // Find shortest path: instant (C backend) or animated (JS)
   const handleFindPath = useCallback(async () => {
     if (!source || !destination) return
 
@@ -228,7 +228,7 @@ export default function App() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
-      {/* Full-screen map */}
+      {/* Map */}
       <MapView
         nodes={nodes}
         source={source}
@@ -240,7 +240,7 @@ export default function App() {
         animState={animState}
       />
 
-      {/* Floating search panel (top-left) */}
+      {/* Search panel */}
       <SearchPanel
         nodes={nodes}
         source={source}
@@ -253,14 +253,14 @@ export default function App() {
         error={error}
       />
 
-      {/* Floating POI toggles (top-right) */}
+      {/* POI toggles */}
       <POIToggle
         visibleCategories={visibleCategories}
         onToggle={handleTogglePOI}
         counts={poiCounts}
       />
 
-      {/* Floating speed control (bottom-right) */}
+      {/* Speed control */}
       <SpeedControl
         speed={animSpeed}
         onChangeSpeed={setAnimSpeed}
@@ -268,7 +268,7 @@ export default function App() {
         onStop={handleStopAnimation}
       />
 
-      {/* Floating route card (bottom-center) */}
+      {/* Route card */}
       {result && (
         <RouteCard result={result} onClose={() => { setResult(null); setAnimState(null) }} />
       )}

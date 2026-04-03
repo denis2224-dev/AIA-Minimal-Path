@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
-"""
-OSM → CSV preprocessing pipeline for the Rîșcani sector of Chișinău.
-
-Downloads street data from the Overpass API, parses nodes and ways,
-computes Haversine edge weights, keeps only the largest SCC,
-re-indexes node IDs to 0..N-1, and writes nodes.csv + edges.csv.
-"""
+# OSM to CSV preprocessing pipeline for Chisinau
+# Downloads street data, parses nodes and ways, computes edge weights,
+# keeps only the largest SCC, and writes nodes.csv + edges.csv
 
 import os
 import sys
@@ -20,7 +16,7 @@ except ImportError:
     print("ERROR: 'requests' library not found. Install it with: pip install requests")
     sys.exit(1)
 
-# ── Constants ────────────────────────────────────────────────────────────────
+# Constants
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 OVERPASS_QUERY = """
@@ -40,10 +36,10 @@ EDGES_CSV_PATH = os.path.join(DATA_DIR, "edges.csv")
 EARTH_RADIUS_M = 6_371_000  # meters
 
 
-# ── Haversine ────────────────────────────────────────────────────────────────
+# Haversine
 
 def haversine(lat1, lon1, lat2, lon2):
-    """Return the great-circle distance in meters between two points."""
+    # Return the great-circle distance in meters between two points
     rlat1, rlon1 = math.radians(lat1), math.radians(lon1)
     rlat2, rlon2 = math.radians(lat2), math.radians(lon2)
     dlat = rlat2 - rlat1
@@ -52,10 +48,10 @@ def haversine(lat1, lon1, lat2, lon2):
     return EARTH_RADIUS_M * 2 * math.asin(math.sqrt(a))
 
 
-# ── Download OSM data ────────────────────────────────────────────────────────
+# Download OSM data
 
 def download_osm():
-    """Download raw OSM XML via the Overpass API and save to data/raw.osm."""
+    # Download raw OSM XML via the Overpass API and save to data/raw.osm
     os.makedirs(DATA_DIR, exist_ok=True)
     if os.path.exists(RAW_OSM_PATH):
         print(f"[INFO] {RAW_OSM_PATH} already exists — skipping download.")
@@ -68,20 +64,15 @@ def download_osm():
     print(f"[INFO] Saved {len(resp.text)} bytes → {RAW_OSM_PATH}")
 
 
-# ── Parse OSM XML ────────────────────────────────────────────────────────────
+# Parse OSM XML
 
 def parse_osm():
-    """
-    Parse raw.osm and return:
-      nodes  – dict  osm_id → (lat, lon)
-      edges  – list  (u_osm, v_osm, weight_m)
-      names  – dict  osm_id → street name (may be partial; best-effort)
-    """
+    # Parse raw.osm and return nodes, edges, and street names
     print("[INFO] Parsing OSM XML …")
     tree = ET.parse(RAW_OSM_PATH)
     root = tree.getroot()
 
-    # Collect nodes
+    # Read all nodes
     nodes = {}
     for elem in root.iter("node"):
         nid = int(elem.attrib["id"])
@@ -89,12 +80,12 @@ def parse_osm():
         lon = float(elem.attrib["lon"])
         nodes[nid] = (lat, lon)
 
-    # Collect ways → edges
+    # Read all ways and create edges
     edges = []
-    names = {}  # osm_node_id → street name (from the way that contains it)
+    names = {}
 
     for way in root.iter("way"):
-        # Read tags
+        # Get tags from the way
         tags = {}
         for tag in way.findall("tag"):
             tags[tag.attrib["k"]] = tag.attrib["v"]
@@ -125,23 +116,20 @@ def parse_osm():
     return nodes, edges, names
 
 
-# ── Largest SCC (Kosaraju's algorithm) ───────────────────────────────────────
+# Largest SCC (Kosaraju's algorithm)
 
 def largest_scc(node_set, edges):
-    """
-    Compute SCCs using Kosaraju's algorithm (iterative DFS).
-    Returns a set of node IDs belonging to the largest SCC.
-    """
-    print("[INFO] Computing strongly-connected components …")
+    # Compute strongly connected components
+    print("[INFO] Computing strongly connected components …")
 
-    # Build adjacency and reverse adjacency
+    # Build adjacency and reverse adjacency lists
     adj = defaultdict(list)
     radj = defaultdict(list)
     for u, v, _ in edges:
         adj[u].append(v)
         radj[v].append(u)
 
-    # Pass 1: iterative DFS on original graph → finish order
+    # Pass 1: DFS on original graph to get finish order
     visited = set()
     finish_order = []
 
@@ -162,7 +150,7 @@ def largest_scc(node_set, edges):
                 if nb not in visited:
                     stack.append((nb, False))
 
-    # Pass 2: iterative DFS on reverse graph in reverse finish order
+    # Pass 2: DFS on reverse graph in reverse finish order
     visited2 = set()
     components = []
 
@@ -188,19 +176,17 @@ def largest_scc(node_set, edges):
     return biggest
 
 
-# ── Re-index & write CSV ─────────────────────────────────────────────────────
+# Re-index and write CSV
 
 def write_csv(nodes, edges, names, keep_set):
-    """
-    Re-index nodes in keep_set to 0..N-1, filter edges, write CSVs.
-    """
-    # Build osm_id → internal_id mapping
+    # Re-index nodes in keep_set to 0..N-1, filter edges, write CSVs
+    # Build osm_id to internal_id mapping
     sorted_ids = sorted(keep_set)
     osm_to_int = {osm_id: idx for idx, osm_id in enumerate(sorted_ids)}
 
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    # Write nodes.csv
+    # Write nodes.csv file
     with open(NODES_CSV_PATH, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["id", "lat", "lon", "name"])
@@ -223,14 +209,14 @@ def write_csv(nodes, edges, names, keep_set):
     print(f"[INFO] Wrote {edge_count} edges → {EDGES_CSV_PATH}")
 
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+# Main
 
 def main():
     download_osm()
     nodes, edges, names = parse_osm()
 
     node_set = set(nodes.keys())
-    # Keep only nodes that participate in at least one edge
+    # Only keep nodes that have at least one edge
     edge_nodes = set()
     for u, v, _ in edges:
         edge_nodes.add(u)
@@ -240,11 +226,7 @@ def main():
     keep = largest_scc(node_set, edges)
     write_csv(nodes, edges, names, keep)
 
-    print("\n══════════════════════════════════")
-    print(f"  Nodes in graph : {len(keep)}")
-    print(f"  Edges in graph : sum of directed edges in edges.csv")
-    print("══════════════════════════════════")
-    print("Done ✓")
+    print(f"\nDone. Nodes in graph: {len(keep)}")
 
 
 if __name__ == "__main__":

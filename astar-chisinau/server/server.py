@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""
-Flask API server that loads the A* shared library via ctypes
-and exposes pathfinding endpoints for the React UI.
-"""
+# Flask API server that loads the A* shared library via ctypes
+# and exposes pathfinding endpoints for the React UI.
 
 import os
 import sys
@@ -18,7 +16,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# ── Paths ────────────────────────────────────────────────────────────────────
+# Paths
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "..", "data")
@@ -28,10 +26,10 @@ NODES_CSV = os.path.join(DATA_DIR, "nodes.csv")
 EDGES_CSV = os.path.join(DATA_DIR, "edges.csv")
 POIS_JSON = os.path.join(DATA_DIR, "pois.json")
 
-# ── Detect shared library path ───────────────────────────────────────────────
+# Detect shared library path
 
 def find_library():
-    """Find the compiled shared library across platforms."""
+    # Find the compiled shared library across platforms
     system = platform.system()
     candidates = []
     if system == "Darwin":
@@ -50,15 +48,15 @@ def find_library():
     return None
 
 
-# ── Load shared library ─────────────────────────────────────────────────────
+# Load shared library
 
 LIB = None
 GRAPH_HANDLE = None
-NODES = []  # list of dicts: {id, lat, lon, name}
+NODES = []
 
 
 def load_library():
-    """Load the C shared library and the graph at startup."""
+    # Load the C shared library and the graph at startup
     global LIB, GRAPH_HANDLE, NODES
 
     lib_path = find_library()
@@ -69,7 +67,7 @@ def load_library():
 
     LIB = ctypes.CDLL(lib_path)
 
-    # Define function signatures
+    # Set up function signatures for ctypes
     LIB.graph_load.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
     LIB.graph_load.restype = ctypes.c_void_p
 
@@ -102,7 +100,7 @@ def load_library():
     LIB.graph_free.argtypes = [ctypes.c_void_p]
     LIB.graph_free.restype = None
 
-    # Load graph
+    # Load the graph from CSV files
     if not os.path.isfile(NODES_CSV) or not os.path.isfile(EDGES_CSV):
         print("[ERROR] Graph CSV files not found. Run preprocess.py first.")
         return False
@@ -115,7 +113,7 @@ def load_library():
         print("[ERROR] graph_load returned NULL.")
         return False
 
-    # Cache node data for the /api/nodes endpoint
+    # Cache all node data so we can return it quickly
     n = LIB.graph_node_count(GRAPH_HANDLE)
     NODES = []
     lat = ctypes.c_double()
@@ -135,11 +133,11 @@ def load_library():
     return True
 
 
-# ── Endpoints ────────────────────────────────────────────────────────────────
+# API Endpoints
 
 @app.route("/api/nodes")
 def api_nodes():
-    """Return all graph nodes as a JSON array."""
+    # Return all graph nodes as JSON
     if GRAPH_HANDLE is None:
         return jsonify({"error": "Graph not loaded. Run preprocess.py and build the C library first."}), 503
     return jsonify(NODES)
@@ -147,7 +145,7 @@ def api_nodes():
 
 @app.route("/api/edges")
 def api_edges():
-    """Return graph edges as a JSON array of [u, v, weight_m]."""
+    # Return graph edges as JSON array of [u, v, weight_m]
     if not os.path.isfile(EDGES_CSV):
         return jsonify([])
     edges = []
@@ -160,7 +158,7 @@ def api_edges():
 
 @app.route("/api/pois")
 def api_pois():
-    """Return POIs (hospitals, pharmacies, emergency stations) as JSON."""
+    # Return POIs (hospitals, pharmacies, etc.) as JSON
     if os.path.isfile(POIS_JSON):
         with open(POIS_JSON, "r", encoding="utf-8") as f:
             return jsonify(json.load(f))
@@ -169,10 +167,8 @@ def api_pois():
 
 @app.route("/api/path", methods=["POST"])
 def api_path():
-    """
-    Run A* or Dijkstra between two nodes.
-    Request body: {"src": int, "dst": int, "algorithm": "astar"|"dijkstra"}
-    """
+    # Run A* or Dijkstra between two nodes
+    # Request body: {"src": int, "dst": int, "algorithm": "astar"|"dijkstra"}
     if GRAPH_HANDLE is None:
         return jsonify({"error": "Graph not loaded."}), 503
 
@@ -194,12 +190,12 @@ def api_path():
     if src < 0 or src >= n or dst < 0 or dst >= n:
         return jsonify({"error": f"Node IDs out of range (0..{n-1})."}), 400
 
-    # Allocate result buffers
+    # Allocate buffers for the result
     result_nodes = (ctypes.c_int * n)()
     result_len = ctypes.c_int(0)
     nodes_expanded = ctypes.c_int(0)
 
-    # Run the chosen algorithm
+    # Run the chosen algorithm and measure time
     t0 = time.perf_counter()
     if algo == "dijkstra":
         distance = LIB.graph_dijkstra(
@@ -218,7 +214,7 @@ def api_path():
     if distance < 0:
         return jsonify({"error": "No path found between these nodes."}), 404
 
-    # Build path with coordinates
+    # Build the path with lat/lon coordinates
     path = []
     plen = result_len.value
     lat = ctypes.c_double()
@@ -243,7 +239,7 @@ def api_path():
     })
 
 
-# ── Main ─────────────────────────────────────────────────────────────────────
+# Main
 
 if __name__ == "__main__":
     ok = load_library()
