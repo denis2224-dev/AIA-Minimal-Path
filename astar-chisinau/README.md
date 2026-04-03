@@ -1,6 +1,6 @@
-# Emergency Ambulance Routing — Chișinău
+# Emergency Ambulance Routing - Chișinău
 
-Real-time emergency ambulance dispatch routing over a real OpenStreetMap street graph of the Rîșcani sector, Chișinău, Moldova. Built for the AIA course at UTM.
+Real-time emergency ambulance dispatch routing over a real OpenStreetMap street graph of the Chișinău, Moldova. Built for the AIA course at UTM.
 
 Uses the **A\* algorithm** with a Haversine heuristic to compute the optimal shortest path between any two points on the street network.
 
@@ -9,6 +9,16 @@ Uses the **A\* algorithm** with a Haversine heuristic to compute the optimal sho
 2. **C core** — loads the graph into a CSR structure, runs A\* via a shared library (`.so` / `.dylib` / `.dll`)
 3. **React + TypeScript frontend** — Leaflet map UI with emergency routing theme, ETA calculation
 
+---
+
+## Contributions
+
+- **Bradu Stanislav** — UI design, React components, TypeScript types
+- **Moroz Denis** — Python preprocessing, Flask API, Graph data extraction, OSM parsing
+- **Nenita David** — Algorithm deep study, software application, documentation
+- **Rusu Sergiu** — Problem analysis, documentation, real life use case research
+- **Zavtoni Ion** — A* implementation in C, CLI testing
+- **All team members** contributed to project structure, testing, and final presentation.
 ---
 
 ## Quick Start (Docker)
